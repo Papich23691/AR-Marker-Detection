@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 
-const float square_dim = 0.024f;
+const float square_dim = 0.026f;
 
 void create_aruco_markers(){
     cv::Mat out_marker;
@@ -49,7 +49,7 @@ int monitor(const cv::Mat &cam_mat,const cv::Mat &distance,float square_dim){
         cv::aruco::detectMarkers(frame,marker_dic,corners,marker_id);
         cv::aruco::estimatePoseSingleMarkers(corners, square_dim,cam_mat,distance,rotate,translated);
         for (int i=0;i<marker_id.size();i++){
-            cv::aruco::drawAxis(frame,cam_mat,distance,rotate,translated,0.1f);
+            cv::aruco::drawAxis(frame,cam_mat,distance,rotate[i],translated[i],0.3f);
         }
         cv::imshow("Cam",frame);
         if (cv::waitKey(30) >= 0) break;
@@ -108,7 +108,11 @@ bool save_cal(std::string name, cv::Mat cam_mat, cv::Mat distortion)
         uint16_t rows = cam_mat.rows;
         uint16_t cols = cam_mat.cols;
     
+        printf("%u / %u",rows,cols);
 
+        out << rows << std::endl;
+        out << cols << std::endl;
+        
         for (int r=0;r<rows;r++)
         {
             for (int c=0;c<cols;c++)
@@ -119,6 +123,10 @@ bool save_cal(std::string name, cv::Mat cam_mat, cv::Mat distortion)
         }
         rows = distortion.rows;
         cols = distortion.cols;
+
+        out << rows << std::endl;
+        out << cols << std::endl;
+
         for (int r=0;r<rows;r++)
         {
             for (int c=0;c<cols;c++)
@@ -132,20 +140,61 @@ bool save_cal(std::string name, cv::Mat cam_mat, cv::Mat distortion)
     return true;
 }
 
-int main(){
+bool load_cal (std::string name, cv::Mat &cam_mat, cv::Mat &distortion){
+    std::ifstream in(name);
+    if (in)
+    {
+        uint16_t rows;
+        uint16_t cols;
+
+        in >> rows;
+        in >> cols; 
+        
+        cam_mat = cv::Mat(cv::Size(cols,rows),CV_64F);
+
+        for (int r=0;r<rows;r++)
+        {
+            for (int c=0;c<cols;c++)
+            {
+                double read = 0.0f;
+                in >> read;
+                cam_mat.at<double>(r,c) = read;
+                printf("%f\n",cam_mat.at<double>(r,c));
+            }
+        }
+
+        in >> rows;
+        in >> cols; 
+
+        distortion = cv::Mat::zeros(rows,cols,CV_64F);
+
+        for (int r=0;r<rows;r++)
+        {
+            for (int c=0;c<cols;c++)
+            {
+                double read = 0.0f;
+                in >> read;
+                distortion.at<double>(r,c) = read;
+                printf("%f\n",distortion.at<double>(r,c));
+            }
+        }
+        in.close();
+        return true;
+    }
+    return false;
+}
+
+bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion)
+{
     cv::Mat frame;
     cv::Mat draw;
-
-    cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
-
-    cv::Mat distortion;
 
     std::vector<cv::Mat> saved;
     std::vector<std::vector<cv::Point2f>> corners,rejected;
     cv::VideoCapture vid(0);
 
     if (!vid.isOpened())
-        return 1;
+        return false;
     int fps = 60;
     cv::namedWindow("Cam",cv::WINDOW_AUTOSIZE);
     while(1)
@@ -182,9 +231,23 @@ int main(){
                 }
                 break;
             case 27:
-                return 0;
-                break;
+                return true;
         }
+    }
+    return true;
+}
+
+int main(){
+    cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
+
+    cv::Mat distortion;
+    char c;
+    std::cin  >> c ; 
+    if (c=='a')
+        camera_cal_real_time(cam_mat,distortion);
+    else{
+        load_cal("Calibration",cam_mat,distortion);
+        monitor(cam_mat,distortion,0.57f);
     }
 
     return 0;
