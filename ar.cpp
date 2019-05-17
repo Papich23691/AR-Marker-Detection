@@ -53,7 +53,7 @@ int monitor(const cv::Mat &cam_mat,const cv::Mat &distortion,float square_dim){
             cv::Mat rotation_mat;
             printf("%d t - <%f,%f,%f>\n",i,translated[i][0],translated[i][1],translated[i][2]);
             tr = translated[i];
-            printf("%d r - <%f,%f,%f>\n",i,rotate[i][0],rotate[i][1],rotate[i][2]);
+          //  printf("%d r - <%f,%f,%f>\n",i,rotate[i][0],rotate[i][1],rotate[i][2]);
             cv::aruco::drawAxis(frame,cam_mat,distortion,rotate[i],translated[i],0.02f);
             cv::aruco::drawDetectedMarkers(frame,corners,marker_id);
         }

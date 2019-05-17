@@ -54,7 +54,7 @@ void DrawCube(void)
     // clear the drawing buffer.
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(trans[0],trans[1],-1 * trans[2]);
+    glTranslatef(-1 *trans[0]/square_dim,-1 * trans[1]/square_dim,-1 * trans[2]/0.5);
     glutSolidTeapot(.5);
     glFlush();
     glutSwapBuffers();
