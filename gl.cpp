@@ -15,7 +15,7 @@
 #include <fstream>
 
 GLfloat xRotated, yRotated, zRotated;
-cv::Vec3f trans;
+cv::Vec3f trans,rot;
 cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
 cv::Mat distortion;
 cv::VideoCapture vid(0);
@@ -38,15 +38,20 @@ void timer(int)
             cv::aruco::estimatePoseSingleMarkers(corners, square_dim,cam_mat,distortion,rotate,translated);
             for (int i=0;i<marker_id.size();i++){
                 cv::Mat rotation_mat;
-                printf("%d t - <%f,%f,%f>\n",i,translated[i][0],translated[i][1],translated[i][2]);
+               // printf("%d t - <%f,%f,%f>\n",i,translated[i][0],translated[i][1],translated[i][2]);
                 trans = translated[i];
+                rot = rotate[i];
                 printf("%d r - <%f,%f,%f>\n",i,rotate[i][0],rotate[i][1],rotate[i][2]);
+              cv::aruco::drawAxis(frame,cam_mat,distortion,rotate[i],translated[i],0.02f);
+
             }
+            cv::flip(frame,frame,1);
             cv::imshow("cam",frame);
             cv::waitKey(30);
     }
 
 }
+
 
 void DrawCube(void)
 {
@@ -54,8 +59,26 @@ void DrawCube(void)
     // clear the drawing buffer.
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(-1 *trans[0]/square_dim,-1 * trans[1]/square_dim,-1 * trans[2]/0.5);
-    glutSolidTeapot(.5);
+    glPushMatrix();
+    glTranslatef(-1 *(trans[0])/square_dim,-1 * (trans[1])/square_dim,-1 * trans[2]/(square_dim* 5.7));
+    glRotatef(180,rot[0]/square_dim,rot[1]/square_dim,rot[2]/square_dim);
+    /*cv::Mat rmat;
+    cv::Rodrigues(rot, rmat);
+    float mat[rmat.rows * rmat.cols];
+    int m_index=0;
+    printf("____\n");
+    for (int i=0;i<rmat.rows;i++)
+    {
+        for (int j=0;j<rmat.cols;j++)
+        {
+            mat[m_index] = rmat.at<float>(j,i);
+            printf("%f\t",mat[m_index]);
+        }
+    } 
+    printf("____\n");
+    glMultMatrixf(mat);*/
+    glutWireTeapot(0.5);
+    glPopMatrix();
     glFlush();
     glutSwapBuffers();
 }
@@ -106,17 +129,11 @@ bool load_cal (std::string name, cv::Mat &cam_mat, cv::Mat &distortion){
 
 void reshape(int x, int y)
 {
-    if (y == 0 || x == 0) return;  //Nothing is visible then, so return
-    //Set a new projection matrix
     glMatrixMode(GL_PROJECTION);  
     glLoadIdentity();
-    //Angle of view:40 degrees
-    //Near clipping plane distance: 0.5
-    //Far clipping plane distance: 20.0
-     
-    gluPerspective(40.0,(GLdouble)x/(GLdouble)y,0.5,20.0);
+    gluPerspective(60.0,1,0.5,200.0);
     glMatrixMode(GL_MODELVIEW);
-    glViewport(0,0,x,y);  //Use the whole window for rendering
+    glViewport(0,0,x,y);  
 }
 
 int main(int argc, char** argv){
@@ -124,12 +141,13 @@ glutInit(&argc, argv);
 //we initizlilze the glut. functions
 glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
 glutInitWindowPosition(100, 100);
+glutInitWindowSize(1800,2880);
 glutCreateWindow(argv[0]);
 glClearColor(0,0,0,0);
 load_cal("Calibration",cam_mat,distortion);
-trans[0] = 0.089007;
-trans[1] = 0.018047;
-trans[2] = 1.814368;
+trans[0] = 0;
+trans[1] =0;
+trans[2] = 0;
 glutDisplayFunc(DrawCube);
 glutReshapeFunc(reshape);
 if (!vid.isOpened())

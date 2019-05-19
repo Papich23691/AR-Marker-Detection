@@ -51,10 +51,10 @@ int monitor(const cv::Mat &cam_mat,const cv::Mat &distortion,float square_dim){
         cv::aruco::estimatePoseSingleMarkers(corners, square_dim,cam_mat,distortion,rotate,translated);
         for (int i=0;i<marker_id.size();i++){
             cv::Mat rotation_mat;
-            printf("%d t - <%f,%f,%f>\n",i,translated[i][0],translated[i][1],translated[i][2]);
+           //  printf("%d t - <%f,%f,%f>\n",i,translated[i][0],translated[i][1],translated[i][2]);
             tr = translated[i];
-          //  printf("%d r - <%f,%f,%f>\n",i,rotate[i][0],rotate[i][1],rotate[i][2]);
-            cv::aruco::drawAxis(frame,cam_mat,distortion,rotate[i],translated[i],0.02f);
+            printf("%d r - <%f,%f,%f>\n",i,rotate[i][0],rotate[i][1],rotate[i][2]);
+            cv::aruco::drawAxis(frame,cam_mat,distortion,rotate[i],translated[i],0.01f);
             cv::aruco::drawDetectedMarkers(frame,corners,marker_id);
         }
         cv::imshow("Cam",frame);
@@ -200,7 +200,7 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion)
 
     if (!vid.isOpened())
         return false;
-    int fps = 60;
+    int fps = 120;
     cv::namedWindow("Cam",cv::WINDOW_AUTOSIZE);
     while(1)
     {
@@ -223,13 +223,18 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion)
             case ' ':
                 if (found)
                 {
+                    std::ostringstream convert;
+                    std::string img_name = "Pic_";
                     cv::Mat tmp;
                     frame.copyTo(tmp);
                     saved.push_back(tmp);
+                    convert << img_name << saved.size() << ".jpg";
+                    cv::imwrite(convert.str(),frame);
+                    printf("%d\n",saved.size());
                 }
                 break;
             case 13:
-                if (saved.size() >15)
+                if (saved.size() > 15)
                 {
                     camera_cal(saved,cv::Size(9,6),square_dim,cam_mat,distortion);
                     save_cal("Calibration",cam_mat,distortion);
@@ -244,7 +249,6 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion)
 
 int main(int argc,char **argv){
     cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
-
     cv::Mat distortion;
     char c = '\0';
     printf("Type c for calibration\nType everything else for marker detection\n");
