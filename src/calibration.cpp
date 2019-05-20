@@ -1,67 +1,11 @@
-#include "opencv2/core.hpp"
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/imgproc.hpp"
+
 #include "opencv2/highgui.hpp"
-#include "opencv2/aruco.hpp"
 #include "opencv2/calib3d.hpp"
+#include "calibration.h"
 
 #include <sstream>
 #include <iostream>
 #include <fstream>
-
-const float square_dim = 0.026f;
-cv::Vec3d tr;
-
-void create_aruco_markers(){
-    cv::Mat out_marker;
-    cv::Ptr<cv::aruco::Dictionary> markerdic = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_50);
-
-    for (int i=0;i<50;i++){
-        cv::aruco::drawMarker(markerdic,i,500,out_marker,1);
-        std::ostringstream convert;
-        std::string img_name = "4x4Marker_";
-        convert << img_name << i << ".jpg";
-        cv::imwrite(convert.str(),out_marker);
-    }
-
-}
-
-int monitor(const cv::Mat &cam_mat,const cv::Mat &distortion,float square_dim){
-    cv::Mat frame;
-    std::vector<int> marker_id;
-    std::vector<std::vector<cv::Point2f>> corners, rejected;
-    cv::aruco::DetectorParameters params;
-
-    cv::Ptr<cv::aruco::Dictionary> marker_dic = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_50);
-
-    cv::VideoCapture vid(0);
-
-    if (!vid.isOpened())
-        return -1;
-
-    //cv::namedWindow("Cam",cv::WINDOW_AUTOSIZE);
-
-    std::vector<cv::Vec3d> rotate,translated;
-
-    while(1)
-    {
-        if (!vid.read(frame))
-            break;
-        cv::aruco::detectMarkers(frame,marker_dic,corners,marker_id);
-        cv::aruco::estimatePoseSingleMarkers(corners, square_dim,cam_mat,distortion,rotate,translated);
-        for (int i=0;i<marker_id.size();i++){
-            cv::Mat rotation_mat;
-           //  printf("%d t - <%f,%f,%f>\n",i,translated[i][0],translated[i][1],translated[i][2]);
-            tr = translated[i];
-            printf("%d r - <%f,%f,%f>\n",i,rotate[i][0],rotate[i][1],rotate[i][2]);
-            cv::aruco::drawAxis(frame,cam_mat,distortion,rotate[i],translated[i],0.01f);
-            cv::aruco::drawDetectedMarkers(frame,corners,marker_id);
-        }
-        cv::imshow("Cam",frame);
-        if (cv::waitKey(30) >= 0) break;
-    }
-    return 1;
-}
 
 void create_known(cv::Size board, float square_length,std::vector<cv::Point3f> &corners)
 {
@@ -71,19 +15,6 @@ void create_known(cv::Size board, float square_length,std::vector<cv::Point3f> &
         {
             corners.push_back(cv::Point3f(j * square_length , i*square_length,0.0f));
         }
-    }
-}
-
-void get_corners(std::vector<cv::Mat> img , std::vector<std::vector<cv::Point2f>> &found_cor, bool show=false)
-{
-    for (std::vector<cv::Mat>::iterator i = img.begin(); i !=img.end() ; i++)
-    {
-        std::vector<cv::Point2f> points;
-        bool found = cv::findChessboardCorners(*i,cv::Size(9,6),points,cv::CALIB_CB_NORMALIZE_IMAGE | cv::CALIB_CB_ADAPTIVE_THRESH);
-
-        if (found)
-            found_cor.push_back(points);
-        
     }
 }
 
@@ -105,6 +36,18 @@ void camera_cal(std::vector<cv::Mat> cal_img,cv::Size board,float square, cv::Ma
 
 }
 
+void get_corners(std::vector<cv::Mat> img , std::vector<std::vector<cv::Point2f>> &found_cor, bool show)
+{
+    for (std::vector<cv::Mat>::iterator i = img.begin(); i !=img.end() ; i++)
+    {
+        std::vector<cv::Point2f> points;
+        bool found = cv::findChessboardCorners(*i,cv::Size(9,6),points,cv::CALIB_CB_NORMALIZE_IMAGE | cv::CALIB_CB_ADAPTIVE_THRESH);
+
+        if (found)
+            found_cor.push_back(points);
+        
+    }
+}
 bool save_cal(std::string name, cv::Mat cam_mat, cv::Mat distortion)
 {
     std::ofstream out(name);
@@ -189,7 +132,8 @@ bool load_cal (std::string name, cv::Mat &cam_mat, cv::Mat &distortion){
     return false;
 }
 
-bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion)
+
+bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
 {
     cv::Mat frame;
     cv::Mat draw;
@@ -245,21 +189,4 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion)
         }
     }
     return true;
-}
-
-int main(int argc,char **argv){
-    cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
-    cv::Mat distortion;
-    char c = '\0';
-    printf("Type c for calibration\nType everything else for marker detection\n");
-    scanf(" %c",&c);
-    if (c=='c')
-        camera_cal_real_time(cam_mat,distortion);
-    else{
-        load_cal("Calibration",cam_mat,distortion);
-         monitor(cam_mat,distortion,0.057f);
-    }
-    
-
-    return 0;
 }
