@@ -9,7 +9,7 @@
 
 cv::Vec3f trans,rot;
 extern cv::VideoCapture vid(0);
-static cv::Mat cam_mat,distortion;
+static cv::Mat cam_mat,distortion,frame;
 static double square_dim;
 
 void create_aruco_markers(){
@@ -25,12 +25,23 @@ void create_aruco_markers(){
     }
 
 }
+void create_background()
+{
+    glEnable(GL_TEXTURE_2D);
+    GLuint texture[1];                     
+    glGenTextures(1, &texture[0]);                 
+    glBindTexture(GL_TEXTURE_2D, texture[0]);               
+    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); 
+    glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); 
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S , GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, frame.cols, frame.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
+}
 
 void timer(int)
 {     
     glutPostRedisplay();
-    glutTimerFunc(1000/60,timer,0);
-    cv::Mat frame;
+    glutTimerFunc(1000/120,timer,0);
     std::vector<int> marker_id;
     std::vector<std::vector<cv::Point2f>> corners, rejected;
     cv::aruco::DetectorParameters params;
@@ -47,10 +58,8 @@ void timer(int)
                 printf("%d r - <%f,%f,%f>\n",i,rot[0],rot[1],rot[2]);
                 printf("%d t - <%f,%f,%f>\n",i,trans[0],trans[1],trans[2]);
               cv::aruco::drawAxis(frame,cam_mat,distortion,rotate[i],translated[i],0.02f);
-
             }
             cv::flip(frame,frame,1);
-            cv::imshow("cam",frame);
             cv::waitKey(30);
     }
 
@@ -59,14 +68,28 @@ void timer(int)
 
 void DrawCube(void)
 {
-    glMatrixMode(GL_MODELVIEW);
     glClear(GL_COLOR_BUFFER_BIT);
+    glLoadIdentity();
+    create_background();
+    glPushMatrix();
+    glTranslatef(0,0,-1.7);
+    glColor3f(1,1,1);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);glVertex2f(-1,1);
+    glTexCoord2f(0.0f, 1.0f);glVertex2f(-1,-1);
+    glTexCoord2f(1.0f, 1.0f);glVertex2f(1,-1);
+    glTexCoord2f(1.0f, 0.0f);glVertex2f(1,1);
+    glEnd();
+    glPopMatrix();
+
     glLoadIdentity();
     glPushMatrix();
     glTranslatef(-1 *(trans[0])/square_dim,-1 * (trans[1])/square_dim,-1 * trans[2]/(square_dim* 5.7));
     glRotatef(180,rot[0]/square_dim,rot[1]/square_dim,rot[2]/square_dim);
-    glutWireTeapot(0.5);
+    glColor3f(1.0f,0,0);
+    glutSolidCube(0.5);
     glPopMatrix();
+
     glFlush();
     glutSwapBuffers();
 }

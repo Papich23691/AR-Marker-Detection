@@ -23,7 +23,7 @@ int main(int argc,char **argv){
         scanf(" %f",&square_dim);
         cv::VideoCapture vid(0);
         glutInit(&argc, argv);
-        glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
+        glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH);
         glutInitWindowPosition(100, 100);
         glutInitWindowSize(1800,2880);
         glutCreateWindow(argv[0]);
