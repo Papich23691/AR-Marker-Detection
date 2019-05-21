@@ -1,3 +1,12 @@
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#ifdef _WIN32
+    #include <windows.h>
+#endif
+#include <GL/glut.h>
+#endif
+
 #include <iostream>
 
 #include "calibration.h"
@@ -5,7 +14,6 @@
 
 #include "opencv2/highgui.hpp"
 
-#include <GLUT/glut.h>
 
 int main(int argc,char **argv){
     cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);

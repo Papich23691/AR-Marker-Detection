@@ -1,8 +1,14 @@
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#ifdef _WIN32
+    #include <windows.h>
+#endif
+#include <GL/glut.h>
+#endif
 
 #include "opencv2/highgui.hpp"
 #include "opencv2/aruco.hpp"
-
-#include <GLUT/glut.h>
 
 #include "marker.h"
 #include "calibration.h"
@@ -43,8 +49,7 @@ void timer(int)
     glutPostRedisplay();
     glutTimerFunc(1000/120,timer,0);
     std::vector<int> marker_id;
-    std::vector<std::vector<cv::Point2f>> corners, rejected;
-    cv::aruco::DetectorParameters params;
+    std::vector<std::vector<cv::Point2f>> corners;
     cv::Ptr<cv::aruco::Dictionary> marker_dic = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_50);
     std::vector<cv::Vec3d> rotate,translated; 
     if (vid.read(frame))
@@ -72,7 +77,7 @@ void DrawCube(void)
     glLoadIdentity();
     create_background();
     glPushMatrix();
-    glTranslatef(0,0,-1.7);
+    glTranslatef(0,0,-1.5);
     glColor3f(1,1,1);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);glVertex2f(-1,1);
@@ -84,10 +89,10 @@ void DrawCube(void)
 
     glLoadIdentity();
     glPushMatrix();
-    glTranslatef(-1 *(trans[0])/square_dim,-1 * (trans[1])/square_dim,-1 * trans[2]/(square_dim* 5.7));
+    glTranslatef(-1 *(trans[0])/square_dim,-1 * (trans[1])/square_dim,-1 * trans[2]/(square_dim*square_dim*100));
     glRotatef(180,rot[0]/square_dim,rot[1]/square_dim,rot[2]/square_dim);
     glColor3f(1.0f,0,0);
-    glutSolidCube(0.5);
+    glutWireTeapot(0.3);
     glPopMatrix();
 
     glFlush();
