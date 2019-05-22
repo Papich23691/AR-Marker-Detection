@@ -13,7 +13,7 @@
 #include "marker.h"
 #include "calibration.h"
 
-cv::Vec3f trans,rot;
+std::vector<cv::Vec3d> rotate,translated; 
 extern cv::VideoCapture vid(0);
 static cv::Mat cam_mat,distortion,frame;
 static double square_dim;
@@ -51,17 +51,12 @@ void timer(int)
     std::vector<int> marker_id;
     std::vector<std::vector<cv::Point2f>> corners;
     cv::Ptr<cv::aruco::Dictionary> marker_dic = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_50);
-    std::vector<cv::Vec3d> rotate,translated; 
     if (vid.read(frame))
     {
             cv::aruco::detectMarkers(frame,marker_dic,corners,marker_id);
             cv::aruco::estimatePoseSingleMarkers(corners, square_dim,cam_mat,distortion,rotate,translated);
             for (int i=0;i<marker_id.size();i++){
                 cv::Mat rotation_mat;
-                trans = translated[i];
-                rot = rotate[i];
-                printf("%d r - <%f,%f,%f>\n",i,rot[0],rot[1],rot[2]);
-                printf("%d t - <%f,%f,%f>\n",i,trans[0],trans[1],trans[2]);
               cv::aruco::drawAxis(frame,cam_mat,distortion,rotate[i],translated[i],0.02f);
             }
             cv::flip(frame,frame,1);
@@ -88,12 +83,14 @@ void DrawCube(void)
     glPopMatrix();
 
     glLoadIdentity();
-    glPushMatrix();
-    glTranslatef(-1 *(trans[0])/square_dim,-1 * (trans[1])/square_dim,-1 * trans[2]/(square_dim*square_dim*100));
-    glRotatef(180,rot[0]/square_dim,rot[1]/square_dim,rot[2]/square_dim);
-    glColor3f(1.0f,0,0);
-    glutWireTeapot(0.3);
-    glPopMatrix();
+    for (int i=0;i<translated.size();i++){
+        glPushMatrix();
+        glTranslatef(-1 *(translated[i][0])/square_dim,-1 * (translated[i][1])/square_dim,-1 * translated[i][2]/(square_dim*square_dim*100));
+        glRotatef(180,rotate[i][0]/square_dim,rotate[i][1]/square_dim,rotate[i][2]/square_dim);
+        glColor3f(1.0f,0,0);
+        glutWireTeapot(0.3);
+        glPopMatrix();
+    }
 
     glFlush();
     glutSwapBuffers();
