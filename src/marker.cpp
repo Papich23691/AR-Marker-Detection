@@ -14,7 +14,7 @@
 #include "calibration.h"
 
 std::vector<cv::Vec3d> rotate,translated; 
-extern cv::VideoCapture vid(0);
+extern cv::VideoCapture vid;
 static cv::Mat cam_mat,distortion,frame;
 static double square_dim;
 

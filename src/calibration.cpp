@@ -7,6 +7,8 @@
 #include <iostream>
 #include <fstream>
 
+extern cv::VideoCapture vid;
+
 void create_known(cv::Size board, float square_length,std::vector<cv::Point3f> &corners)
 {
     for(int i=0;i<board.height; i++)
@@ -140,12 +142,11 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
 
     std::vector<cv::Mat> saved;
     std::vector<std::vector<cv::Point2f>> corners,rejected;
-    cv::VideoCapture vid(0);
 
     if (!vid.isOpened())
         return false;
     int fps = 120;
-    cv::namedWindow("Cam",cv::WINDOW_AUTOSIZE);
+    cv::namedWindow("CAM",cv::WINDOW_AUTOSIZE);
     while(1)
     {
         if (!vid.read(frame))

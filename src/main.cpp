@@ -14,6 +14,7 @@
 
 #include "opencv2/highgui.hpp"
 
+cv::VideoCapture vid(0);
 
 int main(int argc,char **argv){
     cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
@@ -29,7 +30,6 @@ int main(int argc,char **argv){
     else
     {
         scanf(" %f",&square_dim);
-        cv::VideoCapture vid(0);
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH);
         glutInitWindowPosition(100, 100);
