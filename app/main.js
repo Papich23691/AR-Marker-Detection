@@ -12,7 +12,7 @@ let status = false;
 app.on('ready',function(){
     mainWindow = new BrowserWindow({
         webPreferences: {nodeIntegration: true},
-    title: ''
+        titleBarStyle: 'hiddenInset' 
 });
     dir = exec("cd ../ && make", function(err, stdout, stderr) {
         console.log(stdout);
@@ -24,7 +24,7 @@ app.on('ready',function(){
     }));
 
     mainWindow.on('closed',function(){
-        dir = exec("ps -ef | grep ../gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) {console.log(stderr);});
+        dir = exec("ps -ef | grep ../gl | grep -v grep |  xargs kill ", function(err, stdout, stderr) {console.log(stderr);});
         app.quit();
     });
 
@@ -33,13 +33,12 @@ app.on('ready',function(){
 });
 
 //Open Calibration
-function createCalibration(){
-    status = false;
+function size(){
     calWindow = new BrowserWindow({
             webPreferences: {nodeIntegration: true},
         width:700,
         height:300,
-        title: ''
+        titleBarStyle: 'hiddenInset' 
     });
     calWindow.loadURL(url.format({
         pathname: path.join(__dirname,"size.html"),
@@ -52,23 +51,6 @@ function createCalibration(){
     })
 }
 
-//Run marker detection
-function RunMarker(){
-    status = true;
-    calWindow = new BrowserWindow({
-        webPreferences: {nodeIntegration: true},
-    title: 'Calibration'
-    });
-calWindow.loadURL(url.format({
-    pathname: path.join(__dirname,"size.html"),
-    protocol:'file:',
-    slashes: true
-}));
-calWindow.on('closed',function(){
-    calWindow = null;
-
-})
-}
 
 ipcMain.on('close',function(e,item){
     if (!status)
@@ -105,16 +87,18 @@ const mainMenuTem = [
                 label:'Calibration',
                 accelerator: process.platform == 'darwin' ? 'Option+C' : 'Alt+C',
                 click(){
-                    dir = exec("ps -ef | grep ../gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) {console.log(stderr);});
-                    createCalibration();
+                    dir = exec("ps -ef | grep ../gl | grep -v grep | xargs kill ", function(err, stdout, stderr) {console.log(stderr);});
+                    status = false;
+                    size();
                 }
             },
             {
                 label:'Run',
                 accelerator: process.platform == 'darwin' ? 'Option+R' : 'Alt+R',
                 click(){
-                    dir = exec("ps -ef | grep ../gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) {console.log(stderr);});
-                    RunMarker();
+                    dir = exec("ps -ef | grep ../gl | grep -v grep | xargs kill ", function(err, stdout, stderr) {console.log(stderr);});
+                    status = true;
+                    size();
                 }
             },
             {

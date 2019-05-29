@@ -1,80 +1,84 @@
 .myButton {
-    background-color:#ffffff;
-    -moz-border-radius:17px;
-    -webkit-border-radius:17px;
-    border-radius:13px;
-    display:inline-block;
-    cursor:pointer;
-    color:#666666;
-    border:5;
-    font-size:15px;
-    font-weight:bold;
-    padding:13px 46px;
-    text-decoration:none;
+    background-color: #ffffff;
+    -moz-border-radius: 17px;
+    -webkit-border-radius: 17px;
+    border-radius: 13px;
+    display: inline-block;
+    cursor: pointer;
+    color: #666666;
+    border: 5;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 13px 46px;
+    text-decoration: none;
 }
+
 .myButton:hover {
-background-color:#f6f6f6;
+    background-color: #f6f6f6;
 }
+
 .myButton:active {
-position:relative;
-top:1px;
+    position: relative;
+    top: 1px;
 }
 
-
-body{
+body {
+    position: fixed;
+    overflow-y: scroll;
+    width: 100%;
+    -webkit-app-region: drag;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
-    font-family:'Courier New', Courier, monospace;
+    font-family: 'Courier New', Courier, monospace;
     background: #313E50;
-  }
-  
-.text-input{
+}
 
-    font-size:20px;
-    font-weight:bold;
+.text-input {
+    font-size: 20px;
+    font-weight: bold;
     position: relative;
     margin-top: 50px;
 }
-    input[type="text"] {
-      display: inline-block;
-      width: 500px;
-      height: 40px;
-      box-sizing: border-box;
-      outline: none;
-      border: 1px solid lightgray;
-      border-radius: 3px;
-      padding: 10px 10px 10px 100px;
-      transition: all 0.1s ease-out;
-    }
-    
-    input[type="text"] + label{
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      height: 45px;
-      line-height: 40px;
-      color: white;
-      border-radius: 3px 0 0 3px;
-      padding: 0 20px;
-      background: #666666;
-      transform: translateZ(0) translateX(0);
-      transition: all 0.3s ease-in;
-      transition-delay: 0.2s;
-    }
-    
-    input[type="text"]:focus + label{
-      transform: translateY(-120%) translateX(0%);
-      border-radius: 3px;
-      transition: all 0.1s ease-out;
-    }
-    
-    input[type="text"]:focus{
-      padding: 10px;
-      transition: all 0.3s ease-out;
-      transition-delay: 0.2s;
-    }
-  
+
+input[type="text"] {
+    display: inline-block;
+    width: 500px;
+    height: 40px;
+    box-sizing: border-box;
+    outline: none;
+    border: 1px solid lightgray;
+    border-radius: 3px;
+    padding: 10px 10px 10px 100px;
+    transition: all 0.1s ease-out;
+}
+
+input[type="text"]+label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 45px;
+    line-height: 40px;
+    color: white;
+    border-radius: 3px 0 0 3px;
+    padding: 0 20px;
+    background: #666666;
+    transform: translateZ(0) translateX(0);
+    transition: all 0.3s ease-in;
+    transition-delay: 0.2s;
+}
+
+input[type="text"]:focus+label {
+    transform: translateY(-120%) translateX(0%);
+    border-radius: 3px;
+    transition: all 0.1s ease-out;
+}
+
+input[type="text"]:focus {
+    padding: 10px;
+    transition: all 0.3s ease-out;
+    transition-delay: 0.2s;
+}
