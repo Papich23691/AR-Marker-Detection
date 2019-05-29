@@ -1,6 +1,8 @@
 
 #include "opencv2/highgui.hpp"
 #include "opencv2/calib3d.hpp"
+#include "opencv2/imgproc.hpp"
+
 #include "calibration.h"
 
 #include <sstream>
@@ -8,6 +10,8 @@
 #include <fstream>
 
 extern cv::VideoCapture vid;
+
+#define MAX 25
 
 void create_known(cv::Size board, float square_length,std::vector<cv::Point3f> &corners)
 {
@@ -139,7 +143,8 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
 {
     cv::Mat frame;
     cv::Mat draw;
-
+    std::string text = "0";
+    cv::Scalar color;
     std::vector<cv::Mat> saved;
     std::vector<std::vector<cv::Point2f>> corners,rejected;
 
@@ -148,19 +153,34 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
     int fps = 120;
     cv::namedWindow("CAM",cv::WINDOW_AUTOSIZE);
     while(1)
-    {
+    {   
+        text = std::to_string(saved.size());
+        if (saved.size() > MAX)
+        {
+            text.append(" - Press Enter to save");
+            color = *(new cv::Scalar(0,255,0,255));
+        }
+        else
+            color = *(new cv::Scalar(0,0,255,255));
+        
+
         if (!vid.read(frame))
             break;
-
         std::vector<cv::Vec2f> found_points;
         bool found = false;
         found = cv::findChessboardCorners(frame,cv::Size(9,6),found_points,cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE |cv::CALIB_CB_FAST_CHECK);
         frame.copyTo(draw);
         cv::drawChessboardCorners(draw,cv::Size(9,6),found_points,found);
-        if (found)
+        
+        if (found){
+            cv::putText(draw, text , cv::Point2f(100,100), 0, 2,color,6);
             cv::imshow("CAM",draw);
+        }
         else
+        {
+            cv::putText(frame, text , cv::Point2f(100,100), 0, 2,color,6);
             cv::imshow("CAM",frame);
+        }
         char c = cv::waitKey(1000/fps);
 
         switch (c)
@@ -169,17 +189,13 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
                 if (found)
                 {
                     std::ostringstream convert;
-                    std::string img_name = "Pic_";
                     cv::Mat tmp;
                     frame.copyTo(tmp);
                     saved.push_back(tmp);
-                    convert << img_name << saved.size() << ".jpg";
-                    cv::imwrite(convert.str(),frame);
-                    printf("%d\n",saved.size());
                 }
                 break;
             case 13:
-                if (saved.size() > 15)
+                if (saved.size() > MAX)
                 {
                     camera_cal(saved,cv::Size(9,6),square_dim,cam_mat,distortion);
                     save_cal("Calibration",cam_mat,distortion);

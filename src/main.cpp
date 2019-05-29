@@ -17,19 +17,21 @@
 cv::VideoCapture vid(0);
 
 int main(int argc,char **argv){
+    if (argc < 3){
+        std::cerr << argv[0] << " <c for calibartion or else> <square size>" << std::endl;
+        return EXIT_FAILURE;
+    }
     cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
     cv::Mat distortion;
     char c = '\0';
     float square_dim;
-    printf("Type c for calibration\nType everything else for marker detection\n");
-    scanf(" %c",&c);
+    c = *argv[1];
+    square_dim = atof(argv[2]);
     if (c=='c'){
-        scanf(" %f",&square_dim);
         camera_cal_real_time(cam_mat,distortion,square_dim);
     }
     else
     {
-        scanf(" %f",&square_dim);
         glutInit(&argc, argv);
         glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB|GLUT_DEPTH);
         glutInitWindowPosition(100, 100);

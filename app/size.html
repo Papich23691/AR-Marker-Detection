@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+        <link rel="stylesheet" href="size.css">
+</head>
+<body>
+        <h1>Type size of square</h1>
+    <form>
+    <div class="text-input">
+            <input type ="text" id="size" autofocus>
+            <label for="size">size</label>
+            <button type = "submit" class="myButton" >Run</a>
+    </div>
+    </form>
+    <script>
+       var exec = require('child_process').exec;
+       const electron = require('electron');
+       const {ipcRenderer} = electron;
+
+       const form = document.querySelector('form');
+       form.addEventListener('submit',submitForm);
+       function submitForm(e){
+        ipcRenderer.send('close',document.querySelector('#size').nodeValue);
+       }
+    </script>
+</body>
+</html>
