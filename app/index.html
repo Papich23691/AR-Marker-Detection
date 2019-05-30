@@ -1,21 +1,39 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
-        <link rel="stylesheet" href="size.css">
+    <link rel="stylesheet" href="size.css">
 </head>
+
 <body>
 
-<h1>Hi</h1>
-    <button onclick="press()">End</button>
-<script>
-        var exec = require('child_process').exec;
-        const electron = require('electron');
-        const {ipcRenderer} = electron;
-        function press(){
-         ipcRenderer.send('refresh');
-         dir = exec("ps -ef | grep ./gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) {console.log(stderr);});
-        }
-     </script>
+    <h1>Hi</h1>
+    <br\>
+        <button onclick="press()">End</button>
+        <button onclick="mar()">Marker Detection</button>
+        <button onclick="cal()">Calibration</button>
+        <script>
+            var exec = require('child_process').exec;
+            const electron = require('electron');
+            const {
+                ipcRenderer
+            } = electron;
+
+            function press() {
+                dir = exec("ps -ef | grep ./gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) {
+                    console.log(stderr);
+                });
+            }
+
+            function cal() {
+                ipcRenderer.send('calibration');
+            }
+
+            function mar() {
+                ipcRenderer.send('marker');
+            }
+        </script>
 </body>
+
 </html>
