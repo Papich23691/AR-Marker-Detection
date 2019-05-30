@@ -13,6 +13,8 @@ app.on('ready', function() {
     mainWindow = new BrowserWindow({
         webPreferences: { nodeIntegration: true },
         titleBarStyle: 'hiddenInset',
+        resizable: false,
+        fullscreen: false
     });
     dir = exec("cd ../ && make", function(err, stdout, stderr) {
         console.log(stdout);
@@ -38,7 +40,7 @@ function size() {
         width: 700,
         resizable: false,
         fullscreen: false,
-        height: 300,
+        height: 250,
         titleBarStyle: 'hiddenInset'
     });
     calWindow.loadURL(url.format({

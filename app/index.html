@@ -8,11 +8,19 @@
 
 <body>
 
-    <h1>Hi</h1>
+    <h1>MR</h1>
     <br\>
-        <button onclick="press()">End</button>
-        <button onclick="mar()">Marker Detection</button>
-        <button onclick="cal()">Calibration</button>
+        <div>
+            <button class="buttons" onclick="cal()">Calibration</button>
+        </div>
+        <div>
+            <button class="buttons" onclick="mar()">Marker Detection</button>
+        </div>
+        <div>
+            <button class="buttons" onclick="press()">End</button>
+        </div>
+
+
         <script>
             var exec = require('child_process').exec;
             const electron = require('electron');
