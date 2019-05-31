@@ -13,11 +13,17 @@
 #include "marker.h"
 #include "calibration.h"
 
+/* The output vectors of the marker detection */
 std::vector<cv::Vec3d> rotate,translated; 
 extern cv::VideoCapture vid;
-static cv::Mat cam_mat,distortion,frame;
+/* The camera and distortion matrices loaded from the ./Calibration file */
+static cv::Mat cam_mat,distortion;
+cv::Mat frame;
 static double square_dim;
 
+/**
+ * Function which saves all of the aruco marker in the current folder 
+ */
 void create_aruco_markers(){
     cv::Mat out_marker;
     cv::Ptr<cv::aruco::Dictionary> markerdic = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME::DICT_4X4_50);
@@ -31,6 +37,10 @@ void create_aruco_markers(){
     }
 
 }
+
+/**
+ * Parsing the OpenCV matrix to OpenGL texture 
+ */
 void create_background()
 {
     glEnable(GL_TEXTURE_2D);
@@ -44,6 +54,10 @@ void create_background()
     glTexImage2D(GL_TEXTURE_2D, 0, 3, frame.cols, frame.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, frame.data);
 }
 
+/**
+ * OpenGL timer function called by glutTimerFunc 
+ * which detects a marker for each frame
+ */
 void timer(int)
 {     
     glutPostRedisplay();
@@ -65,8 +79,11 @@ void timer(int)
 
 }
 
-
-void DrawCube(void)
+/**
+ * Using glutDisplayFunc with Draw() to render the background 
+ * image from the camera as well as rendering the teapot
+ */
+void Draw(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
@@ -106,6 +123,9 @@ void reshape(int x, int y)
     glViewport(0,0,x,y);  
 }
 
+/**
+ * Pass data from main.cpp
+ */
 void load(cv::Mat cMatrix,cv::Mat dMatrix,double sDim)
 {
     square_dim = sDim;

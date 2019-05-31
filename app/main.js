@@ -3,20 +3,30 @@ const url = require('url');
 const path = require('path');
 var exec = require('child_process').exec;
 
-const { app, BrowserWindow, Menu, ipcMain } = electron;
+const { app, BrowserWindow, Menu, ipcMain, systemPreferences } = electron;
 
 let mainWindow;
 let calWindow;
 let status = false;
+
+/* Closes the current square size window as well as the program process */
+function closeWin(s) {
+    dir = exec("ps -ef | grep ./gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) { console.log(stderr); });
+    if (calWindow)
+        calWindow.close();
+    status = s;
+    size();
+}
 
 app.on('ready', function() {
     mainWindow = new BrowserWindow({
         webPreferences: { nodeIntegration: true },
         titleBarStyle: 'hiddenInset',
         resizable: false,
-        fullscreen: false
+        maximizable: false
     });
-    dir = exec("cd ../ && make", function(err, stdout, stderr) {
+    /* Compiling the program */
+    dir = exec("cd ../src/ && make", function(err, stdout, stderr) {
         console.log(stdout);
     });
     mainWindow.loadURL(url.format({
@@ -33,13 +43,13 @@ app.on('ready', function() {
     Menu.setApplicationMenu(mainMenu);
 });
 
-//Open Calibration
+/* Open square size input window */
 function size() {
     calWindow = new BrowserWindow({
         webPreferences: { nodeIntegration: true },
         width: 700,
         resizable: false,
-        fullscreen: false,
+        maximizable: false,
         height: 250,
         titleBarStyle: 'hiddenInset'
     });
@@ -54,29 +64,29 @@ function size() {
     })
 }
 
-
+/* Function called after input of square size */
 ipcMain.on('close', function(e, item) {
     if (!status)
-        dir = exec("../gl c " + item, function(err, stdout, stderr) {});
+        dir = exec("../src/gl c " + item, function(err, stdout, stderr) {
+            console.log(stdout);
+        });
     else
-        dir = exec("../gl r " + item, function(err, stdout, stderr) {});
+        dir = exec("../src/gl r " + item, function(err, stdout, stderr) { console.log(stdout); });
     console.log(item);
     calWindow.close();
 });
 
+/* Marker Detection */
 ipcMain.on('marker', function(e, item) {
-    dir = exec("ps -ef | grep ./gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) { console.log(stderr); });
-    status = true;
-    size();
+    closeWin(true);
 });
 
+/* Calibration */
 ipcMain.on('calibration', function(e, item) {
-    dir = exec("ps -ef | grep ./gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) { console.log(stderr); });
-    status = false;
-    size();
+    closeWin(false);
 });
 
-
+/* Menu Items */
 const mainMenuTem = [{
         label: 'Program',
         submenu: [{
@@ -95,23 +105,19 @@ const mainMenuTem = [{
         ]
     },
     {
-        label: 'File',
+        label: 'Options',
         submenu: [{
                 label: 'Calibration',
                 accelerator: process.platform == 'darwin' ? 'Option+C' : 'Alt+C',
                 click() {
-                    dir = exec("ps -ef | grep ./gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) { console.log(stderr); });
-                    status = false;
-                    size();
+                    closeWin(false);
                 }
             },
             {
                 label: 'Run',
                 accelerator: process.platform == 'darwin' ? 'Option+R' : 'Alt+R',
                 click() {
-                    dir = exec("ps -ef | grep ./gl | grep -v grep | awk '{print $2}'  | xargs kill ", function(err, stdout, stderr) { console.log(stderr); });
-                    status = true;
-                    size();
+                    closeWin(true);
                 }
             },
             {

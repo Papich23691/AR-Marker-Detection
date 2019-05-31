@@ -12,7 +12,11 @@
 extern cv::VideoCapture vid;
 
 #define MAX 25
+#define FPS 120
 
+/**
+ * Finding the physical position of each corner using the known square size
+ */
 void create_known(cv::Size board, float square_length,std::vector<cv::Point3f> &corners)
 {
     for(int i=0;i<board.height; i++)
@@ -24,6 +28,10 @@ void create_known(cv::Size board, float square_length,std::vector<cv::Point3f> &
     }
 }
 
+/**
+ * Using the physical positions and the positions in the image as
+ * arguments in OpenCV's calibration function
+ */
 void camera_cal(std::vector<cv::Mat> cal_img,cv::Size board,float square, cv::Mat& cam_mat,cv::Mat &distortion)
 {
     std::vector<std::vector<cv::Point2f>> cheackboard_img_points;
@@ -42,6 +50,9 @@ void camera_cal(std::vector<cv::Mat> cal_img,cv::Size board,float square, cv::Ma
 
 }
 
+/**
+ * Using OpenCV detection function in order to find the chessboard corners in image matrix (Position in the image)
+ */
 void get_corners(std::vector<cv::Mat> img , std::vector<std::vector<cv::Point2f>> &found_cor, bool show)
 {
     for (std::vector<cv::Mat>::iterator i = img.begin(); i !=img.end() ; i++)
@@ -54,6 +65,11 @@ void get_corners(std::vector<cv::Mat> img , std::vector<std::vector<cv::Point2f>
         
     }
 }
+
+/**
+ * Saving the camera matrix as well as the camera distortion matrix
+ * as ./Calibration
+ */
 bool save_cal(std::string name, cv::Mat cam_mat, cv::Mat distortion)
 {
     std::ofstream out(name);
@@ -94,6 +110,9 @@ bool save_cal(std::string name, cv::Mat cam_mat, cv::Mat distortion)
     return true;
 }
 
+/**
+ * Loading the ./Calibration file
+ */
 bool load_cal (std::string name, cv::Mat &cam_mat, cv::Mat &distortion){
     std::ifstream in(name);
     if (in)
@@ -138,7 +157,10 @@ bool load_cal (std::string name, cv::Mat &cam_mat, cv::Mat &distortion){
     return false;
 }
 
-
+/**
+ * Function created to easily calibrate the camera in real time
+ * Saving images in matrix vector and using them to calibrate the camera
+ */
 bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
 {
     cv::Mat frame;
@@ -150,7 +172,7 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
 
     if (!vid.isOpened())
         return false;
-    int fps = 120;
+
     cv::namedWindow("CAM",cv::WINDOW_AUTOSIZE);
     while(1)
     {   
@@ -166,6 +188,7 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
 
         if (!vid.read(frame))
             break;
+            
         std::vector<cv::Vec2f> found_points;
         bool found = false;
         found = cv::findChessboardCorners(frame,cv::Size(9,6),found_points,cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE |cv::CALIB_CB_FAST_CHECK);
@@ -181,7 +204,7 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
             cv::putText(frame, text , cv::Point2f(100,100), 0, 2,color,6);
             cv::imshow("CAM",frame);
         }
-        char c = cv::waitKey(1000/fps);
+        char c = cv::waitKey(1000/FPS);
 
         switch (c)
         {
@@ -198,7 +221,7 @@ bool camera_cal_real_time(cv::Mat &cam_mat,cv::Mat &distortion,float square_dim)
                 if (saved.size() > MAX)
                 {
                     camera_cal(saved,cv::Size(9,6),square_dim,cam_mat,distortion);
-                    save_cal("Calibration",cam_mat,distortion);
+                    save_cal("../Calibration",cam_mat,distortion);
                 }
                 break;
             case 27:

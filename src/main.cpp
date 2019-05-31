@@ -21,14 +21,12 @@ int main(int argc,char **argv){
         std::cerr << argv[0] << " <c for calibartion or else> <square size>" << std::endl;
         return EXIT_FAILURE;
     }
+
     cv::Mat cam_mat= cv::Mat::eye(3,3,CV_64F);
     cv::Mat distortion;
-    char c = '\0';
-    float square_dim;
-    c = *argv[1];
-    square_dim = atof(argv[2]);
-    if (c=='c'){
-        camera_cal_real_time(cam_mat,distortion,square_dim);
+
+    if (*argv[1] == 'c'){
+        camera_cal_real_time(cam_mat,distortion,atof(argv[2]));
     }
     else
     {
@@ -38,9 +36,9 @@ int main(int argc,char **argv){
         glutInitWindowSize(1800,2880);
         glutCreateWindow(argv[0]);
         glClearColor(0,0,0,0);
-        load_cal("Calibration",cam_mat,distortion);
-        load(cam_mat,distortion,square_dim);
-        glutDisplayFunc(DrawCube);
+        load_cal("../Calibration",cam_mat,distortion);
+        load(cam_mat,distortion,atof(argv[2]));
+        glutDisplayFunc(Draw);
         glutReshapeFunc(reshape);
         if (!vid.isOpened())
             return 1;

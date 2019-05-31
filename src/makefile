@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = `pkg-config --libs --cflags opencv4` -Wall -w -std=c++11
-INCLUDE = include/
-SRC = src/marker.cpp src/calibration.cpp src/main.cpp
+INCLUDE = ../include/
+SRC = marker.cpp calibration.cpp main.cpp
 LINK = /
 
 ifeq ($(shell uname -s),Darwin)
