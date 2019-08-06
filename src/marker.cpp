@@ -31,7 +31,7 @@ void create_aruco_markers(){
     for (int i=0;i<50;i++){
         cv::aruco::drawMarker(markerdic,i,500,out_marker,1);
         std::ostringstream convert;
-        std::string img_name = "4x4Marker_";
+        std::string img_name = "Markers/4x4Marker_";
         convert << img_name << i << ".jpg";
         cv::imwrite(convert.str(),out_marker);
     }

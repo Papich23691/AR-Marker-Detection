@@ -17,6 +17,7 @@
 cv::VideoCapture vid(0);
 
 int main(int argc,char **argv){
+    create_aruco_markers();
     if (argc < 3){
         std::cerr << argv[0] << " <c for calibartion or else> <square size>" << std::endl;
         return EXIT_FAILURE;
