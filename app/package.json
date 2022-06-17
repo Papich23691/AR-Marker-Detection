@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/BlueBlur23691/MR#readme",
   "dependencies": {
-    "electron": "^5.0.2"
+    "electron": "^15.5.5"
   }
 }
